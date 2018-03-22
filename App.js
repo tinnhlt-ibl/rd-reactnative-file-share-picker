@@ -12,11 +12,14 @@ import {
   View,
   Button,
   Alert,
-  ActionSheetIOS
+  ActionSheetIOS,
+  Share,
+  Linking
 } from 'react-native';
 
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFetchBlob from 'react-native-fetch-blob'
+import Mailer from 'react-native-mail';
 
 
 const instructions = Platform.select({
@@ -45,17 +48,6 @@ const iOSExcludedActivityLists = [
   "com.apple.reminders.RemindersEditorExtension", //Reminders
   "com.apple.mobilenotes.SharingExtension", // Notes
   "com.apple.mobileslideshow.StreamShareService", // iCloud Photo Sharing - This also does nothing :{
-
-  // Not supported
-  "com.linkedin.LinkedIn.ShareExtension", //LinkedIn
-  "pinterest.ShareExtension", //Pinterest
-  "com.google.GooglePlus.ShareExtension", //Google +
-  "com.tumblr.tumblr.Share-With-Tumblr", //Tumblr
-  "wefwef.YammerShare", //Yammer
-  "com.hootsuite.hootsuite.HootsuiteShareExt", //HootSuite
-  "net.naan.TwitterFonPro.ShareExtension-Pro", //Echofon
-  "com.hootsuite.hootsuite.HootsuiteShareExt", //HootSuite
-  "net.whatsapp.WhatsApp.ShareExtension", //WhatsApp
 ]
 
 type Props = {};
@@ -74,7 +66,7 @@ export default class App extends Component<Props> {
 
   createDummyFiles() {
     const DocumentDir = RNFetchBlob.fs.dirs.DocumentDir;
-    let fileToSavepath = DocumentDir + `/dummyToShare${Date.now()}.txt`;
+    let fileToSavepath = DocumentDir + `/dummyToShare${Date.now()}.key`;
     let content = 'myNameTinTin';
 
     this.setState({
@@ -90,7 +82,7 @@ export default class App extends Component<Props> {
 
   render() {
     const { fileName, fileSize, data } = this.state;
-    const onSaveFile = Platform.OS === 'ios' ? this.onSaveFileIos : this.onSaveFileIos
+    const onSaveFile = Platform.OS === 'ios' ? this.onSaveFileIos : this.onEmail2
 
     return (
       <View style={styles.container}>
@@ -140,6 +132,47 @@ export default class App extends Component<Props> {
         }
         Alert.alert(text)
       });
+  }
+
+  async onEmail2() {
+    const { fileToSavepath } = this.state;
+
+    Alert.alert(fileToSavepath);
+    Mailer.mail({
+      subject: 'need help',
+      recipients: ['support@example.com'],
+      ccRecipients: ['supportCC@example.com'],
+      bccRecipients: ['supportBCC@example.com'],
+      body: '',
+      isHTML: true,
+      attachment: {
+        path: fileToSavepath,  // The absolute path of the file from which to read data.
+        type: 'application/octet-stream',   // Mime Type: jpg, png, doc, ppt, html, pdf
+        name: '',   // Optional: Custom filename for attachment
+      }
+    }, (error, event) => {
+        console.log(error, event);
+        if(error) {
+          Alert.alert('Error', 'Could not send mail. Please send a mail to support@example.com');
+        }
+    });
+  }
+
+  onSaveFileMethodDefaul() {
+    const { fileToSavepath } = this.state;
+    
+    Share.share({
+      url: fileToSavepath
+    }, {
+      excludedActivityTypes: iOSExcludedActivityLists
+    })
+    .then(res => {
+      Alert.alert('ok')
+    })
+    .catch(err => {
+      console.log(err)
+      Alert.alert('error')
+    })
   }
 
   onPickFile() {
