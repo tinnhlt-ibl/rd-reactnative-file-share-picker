@@ -3,7 +3,6 @@ package com.documentpickertest;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import cl.json.RNSharePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
 import com.facebook.react.ReactNativeHost;
@@ -26,7 +25,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNSharePackage(),
             new RNFetchBlobPackage(),
             new ReactNativeDocumentPicker()
       );
