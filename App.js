@@ -175,13 +175,17 @@ export default class App extends Component<Props> {
     })
   }
 
+  _fileFilter() {
+    return (Platform.OS === 'android') ? "*/*" : "public.data";
+  }
+
   onPickFile() {
     this.setState({
       fileSize: 0
     })
 
     DocumentPicker.show({
-      filetype: [DocumentPickerUtil.allFiles()],
+      filetype: [this._fileFilter()],
     }, (error, res) => {
 
       console.log(
